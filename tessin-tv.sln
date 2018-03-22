@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tessin-raspi", "tessin-raspi\tessin-raspi.csproj", "{20B31130-02CB-46B1-8B54-0728B3D9EDCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "src\server\server.csproj", "{11C1E2F7-2336-434F-82C8-2FAD9B851BAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{20B31130-02CB-46B1-8B54-0728B3D9EDCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{20B31130-02CB-46B1-8B54-0728B3D9EDCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{20B31130-02CB-46B1-8B54-0728B3D9EDCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{20B31130-02CB-46B1-8B54-0728B3D9EDCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11C1E2F7-2336-434F-82C8-2FAD9B851BAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11C1E2F7-2336-434F-82C8-2FAD9B851BAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11C1E2F7-2336-434F-82C8-2FAD9B851BAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11C1E2F7-2336-434F-82C8-2FAD9B851BAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
