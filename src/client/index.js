@@ -16,7 +16,7 @@ if (os.platform() === "linux") {
 
 // configure using a TXT record for tv.tessin.local otherwise fallback to host.txt
 
-function watch_dog_process(page) {
+function watch_dog(page) {
   return new Promise(async (resolve, reject) => {
     let heart_freq = 2500;
     let heart_beat = Date.now();
@@ -98,7 +98,7 @@ async function main() {
       });
     }
 
-    await watch_dog_process(page);
+    await watch_dog(page);
 
     console.error("page crashed...");
 
