@@ -3,9 +3,16 @@
 // @ts-check
 
 const puppeteer = require("puppeteer");
+const fs = require("fs");
+const os = require("os");
 
-const panicHtmlFile = require.resolve("./test/panic.html");
-const splashHtmlFile = require.resolve("./test/splash.html");
+let panicHtmlFile = require.resolve("./test/panic.html");
+let splashHtmlFile = require.resolve("./test/splash.html");
+
+if (os.platform() === "linux") {
+  panicHtmlFile = "file://" + panicHtmlFile;
+  splashHtmlFile = "file://" + splashHtmlFile;
+}
 
 // configure using a TXT record for tv.tessin.local otherwise fallback to host.txt
 
@@ -37,15 +44,32 @@ function watch_dog_process(page) {
   });
 }
 
+function stat(fn) {
+  try {
+    return fs.statSync(fn);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      return false;
+    }
+    throw err;
+  }
+}
+
 async function main() {
+  let executablePath;
+
+  if (stat("/usr/bin/chromium-browser")) {
+    executablePath = "/usr/bin/chromium-browser";
+  }
+
   const browser = await puppeteer.launch({
+    executablePath,
     headless: false,
     args: [
       "--no-default-browser-check",
       "--no-first-run",
       "--disable-infobars", // hide "Chrome is being controlled by  ..."
-      // "--incognito",
-      // process.env.NODE_ENV !== "development" ? "--start-fullscreen" : null,
+      // "--incognito", // incognito mode is not support by puppeteer
       process.env.NODE_ENV !== "development" ? "--kiosk" : null
     ].filter(x => x)
   });
@@ -63,18 +87,12 @@ async function main() {
 
   let page = await browser.newPage();
 
-  console.log("viewport", await page.viewport());
-  console.log(
-    "viewport",
-    await page.setViewport({ width: 1920, height: 1080 }) // native resolution for Raspberry Pi
-  );
+  await page.setViewport({ width: 1920, height: 1080 }); // native resolution for Raspberry Pi
 
   await page.goto(splashHtmlFile);
 
   for (;;) {
-    const events = ["close", "console", "error", "pageerror"];
-
-    for (const event of events) {
+    for (const event of ["close", "console", "error", "pageerror"]) {
       page.on(event, function() {
         console.log("page", event);
       });
@@ -82,7 +100,7 @@ async function main() {
 
     await watch_dog_process(page);
 
-    console.error("crashed...");
+    console.error("page crashed...");
 
     await timeout(5000);
 
