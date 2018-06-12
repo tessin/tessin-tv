@@ -8,15 +8,18 @@
   <title>Document</title>
 </head>
 
-<body>
+<body style="background-color: blue; height: 100%; width: 100%;">
   <script>
-    var txt
-    setTimeout(() => {
-      txt = "a";
-      for (; ;) {
-        txt = txt += "a";
+    var n = 0;
+    setInterval(() => {
+      for (let k = 0; k < 1024; k++) {
+        const i = n++
+        for (let j = 0; j < 20; j++) {
+          const txt = window[`__mem${i}`] || "a"
+          window[`__mem${i}`] = txt + txt
+        }
       }
-    }, 1000)
+    }, 1)
   </script>
 </body>
 

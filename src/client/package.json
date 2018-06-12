@@ -1,6 +1,6 @@
 {
-  "name": "@tessin/tessin-tv",
-  "version": "1.0.4",
+  "name": "tessin-tv",
+  "version": "1.0.0",
   "main": "index.js",
   "author": "Tessin Nordic AB",
   "license": "MIT",

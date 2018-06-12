@@ -1,5 +1,8 @@
 .vs
+
 **/bin
 **/obj
 
 publish-profile-*
+
+*-error.log
