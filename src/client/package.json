@@ -14,5 +14,12 @@
   "files": [
     "test/*",
     "index.js"
-  ]
+  ],
+  "scripts": {
+    "start": "cross-env TESSIN_TV_HOST=<hostname> TESSIN_TV_SECRET=<secret> node index.js"
+  },
+  "devDependencies": {
+    "cross-env": "^5.1.6",
+    "nodemon": "^1.17.5"
+  }
 }
