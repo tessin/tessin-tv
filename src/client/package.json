@@ -1,10 +1,17 @@
 {
-  "name": "tessin-tv",
-  "version": "1.0.0",
+  "name": "@tessin/tessin-tv",
+  "version": "1.0.1",
   "main": "index.js",
   "author": "Tessin Nordic AB",
   "license": "MIT",
+  "bin": {
+    "@tessin/tessin-tv": "./index.js"
+  },
   "dependencies": {
-    "puppeteer": "^1.2.0"
-  }
+    "puppeteer": "1.5.0"
+  },
+  "files": [
+    "test/*",
+    "index.js"
+  ]
 }
