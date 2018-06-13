@@ -16,7 +16,8 @@
     "*.js"
   ],
   "scripts": {
-    "start": "cross-env NODE_ENV=development TESSIN_TV_HOST=localhost TESSIN_TV_SECRET=qwerty123 node index.js"
+    "start": "cross-env NODE_ENV=development TESSIN_TV_HOST=localhost:7071 TESSIN_TV_SECRET=qwerty123 node index.js",
+    "utils-test": "nodemon utils-test.js --watch utils.js"
   },
   "devDependencies": {
     "cross-env": "^5.1.6",

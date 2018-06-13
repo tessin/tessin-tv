@@ -1,3 +1,7 @@
-const { execAsync } = require("./utils");
+const Utils = require("./utils");
 
-execAsync("ipconfig").then(console.log);
+async function main() {
+  console.debug(await Utils.getHostID());
+}
+
+main();

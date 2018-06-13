@@ -79,7 +79,10 @@ async function newPage(browser) {
   await page.waitFor("#div-1");
 
   try {
-    await page.evaluate(set_status_text, await utils.getHostIPAddressList());
+    await page.evaluate(
+      set_status_text,
+      JSON.stringify(await utils.getHostID())
+    );
   } catch (err) {
     await page.evaluate(set_status_text, `error: ${err.message}`);
   }
