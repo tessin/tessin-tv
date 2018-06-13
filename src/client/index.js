@@ -7,8 +7,10 @@ const Page = require("puppeteer/lib/Page");
 const ElementHandle = require("puppeteer/lib/ElementHandle");
 const fs = require("fs");
 const os = require("os");
+const { format } = require("url");
 
 const utils = require("./utils");
+const request = require("./http");
 
 let splashHtmlFile = require.resolve("./static/splash.html");
 
@@ -90,7 +92,36 @@ async function newPage(browser) {
   return page;
 }
 
+async function hello() {
+  let protocol = "https";
+  let port;
+
+  const hostname = process.env.TESSIN_TV_HOST || "localhost";
+  const secret = process.env.TESSIN_TV_SECRET;
+
+  if (hostname == "localhost") {
+    protocol = "http";
+    port = 7071;
+  }
+
+  const res = await request({
+    method: "POST",
+    url: format({
+      protocol,
+      hostname,
+      port,
+      pathname: "api/hello",
+      query: { code: secret }
+    }),
+    content: { hostID: await utils.getHostID() }
+  });
+
+  console.debug("hello", res.content);
+}
+
 async function main() {
+  await hello();
+
   let executablePath;
 
   if (stat("/usr/bin/chromium-browser")) {

@@ -2,6 +2,22 @@
 
 const { parse } = require("url");
 
+function Content(headers, content) {
+  if (typeof content === "object") {
+    this.headers = Object.assign(
+      { ["Content-Type"]: "application/json" },
+      headers
+    );
+    this.content = new Buffer(JSON.stringify(content), "utf8");
+  } else if (typeof content === "string") {
+    this.headers = headers;
+    this.content = new Buffer(content, "utf8");
+  } else {
+    this.headers = headers;
+    this.content = null;
+  }
+}
+
 /**
  * @returns {Promise<{statusCode: number, statusMessage: string, headers: {[key: string]: string}, content: any}>}
  */
@@ -24,14 +40,16 @@ function requestAsync({ method, url, headers, content, ...rest }) {
     }
   }
 
+  const content2 = new Content(headers || {}, content)
+
   const headers2 = Object.assign(
     {
       ["Accept"]: "application/json"
     },
-    headers,
-    content
+    content2.headers,
+    content2.content
       ? {
-          ["Content-Length"]: content.length
+          ["Content-Length"]: content2.content.length
         }
       : null
   );
@@ -49,10 +67,10 @@ function requestAsync({ method, url, headers, content, ...rest }) {
     const req = request(options, res => {
       res.setEncoding("utf8");
 
-      let content2 = "";
+      let content3 = "";
 
       res.on("data", chunk => {
-        content2 += chunk;
+        content3 += chunk;
       });
 
       res.on("end", () => {
@@ -63,8 +81,8 @@ function requestAsync({ method, url, headers, content, ...rest }) {
           content:
             res.headers["content-type"] === "application/json" ||
             res.headers["content-type"] === "application/json; charset=utf-8"
-              ? JSON.parse(content2)
-              : content2
+              ? JSON.parse(content3)
+              : content3
         });
       });
     });
@@ -77,8 +95,8 @@ function requestAsync({ method, url, headers, content, ...rest }) {
 
     req.on("error", err => reject(err));
 
-    if (content) {
-      req.write(content);
+    if (content2.content) {
+      req.write(content2.content);
     }
 
     req.end();
@@ -106,7 +124,7 @@ function timeoutAsync(seconds) {
 }
 
 /**
- * @param {{method: string, url: string, headers: {[key: string]: string}, content: any}} req
+ * @param {{method: string, url: string, headers?: {[key: string]: string}, content?: any}} req
  * @returns {Promise<{statusCode: number, statusMessage: string, headers: {[key: string]: string}, content: any}>}
  */
 async function requestWithRetryAsync(req) {
