@@ -3,14 +3,16 @@
 // @ts-check
 
 const puppeteer = require("puppeteer");
+const Page = require("puppeteer/lib/Page");
+const ElementHandle = require("puppeteer/lib/ElementHandle");
 const fs = require("fs");
 const os = require("os");
 
-let panicHtmlFile = require.resolve("./test/panic.html");
-let splashHtmlFile = require.resolve("./test/splash.html");
+const utils = require("./utils");
+
+let splashHtmlFile = require.resolve("./static/splash.html");
 
 if (os.platform() === "linux") {
-  panicHtmlFile = "file://" + panicHtmlFile;
   splashHtmlFile = "file://" + splashHtmlFile;
 }
 
@@ -55,6 +57,36 @@ function stat(fn) {
   }
 }
 
+function set_status_text(textContent) {
+  document.getElementById("div-1").textContent = textContent;
+}
+
+async function newPage(browser) {
+  /** @type {Page} */
+  let page = await browser.newPage();
+
+  for (const event of ["close", "console", "error", "pageerror"]) {
+    page.on(event, function() {
+      console.debug("page", event, ...arguments);
+    });
+  }
+
+  // native Raspberry Pi resolution
+  await page.setViewport({ width: 1920, height: 1080 });
+
+  await page.goto(splashHtmlFile);
+
+  await page.waitFor("#div-1");
+
+  try {
+    await page.evaluate(set_status_text, await utils.getHostIPAddressList());
+  } catch (err) {
+    await page.evaluate(set_status_text, `error: ${err.message}`);
+  }
+
+  return page;
+}
+
 async function main() {
   let executablePath;
 
@@ -85,26 +117,16 @@ async function main() {
     });
   }
 
-  let page = await browser.newPage();
-
-  await page.setViewport({ width: 1920, height: 1080 }); // native resolution for Raspberry Pi
-
-  await page.goto(splashHtmlFile);
+  let page = await newPage(browser);
 
   for (;;) {
-    for (const event of ["close", "console", "error", "pageerror"]) {
-      page.on(event, function() {
-        console.log("page", event);
-      });
-    }
-
     await watch_dog(page);
 
     console.error("page crashed...");
 
     await timeout(5000);
 
-    const page2 = await browser.newPage();
+    const page2 = await newPage(browser);
     await page2.goto(splashHtmlFile);
 
     page.close();

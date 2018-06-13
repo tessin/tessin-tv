@@ -14,22 +14,30 @@
       padding: 0;
     }
 
-    #svg-container {
+    #container {
       display: flex;
       align-items: center;
       height: 100%;
     }
 
     #svg-1 {
+      flex-basis: 100%;
       margin: 0 auto;
       display: block;
       height: 25vh;
+    }
+
+    #div-1 {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      margin: 3em;
     }
   </style>
 </head>
 
 <body>
-  <div id="svg-container">
+  <div id="container">
     <svg id="svg-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 443 144.6">
       <style>
         .tessin-inline__st0___1Bzvf {
@@ -61,6 +69,7 @@
       </g>
     </svg>
   </div>
+  <div id="div-1">##STATUS_TEXT##</div>
 </body>
 
 </html>
