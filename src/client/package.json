@@ -1,6 +1,6 @@
 {
   "name": "tessin-tv",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "index.js",
   "author": "Tessin Nordic AB",
   "license": "MIT",
@@ -12,11 +12,11 @@
     "puppeteer": "1.5.0"
   },
   "files": [
-    "test/*",
-    "index.js"
+    "static/*.html",
+    "*.js"
   ],
   "scripts": {
-    "start": "cross-env TESSIN_TV_HOST=<hostname> TESSIN_TV_SECRET=<secret> node index.js"
+    "start": "cross-env NODE_ENV=development TESSIN_TV_HOST=<hostname> TESSIN_TV_SECRET=<secret> node index.js"
   },
   "devDependencies": {
     "cross-env": "^5.1.6",
