@@ -25,6 +25,8 @@ namespace TessinTelevisionServer
 
             var queue = Storage.GetCommandQueueReference(id2);
 
+            // todo: this can fail if the device has not issued it's hello yet
+
             await queue.AddMessageAsync(new CloudQueueMessage(JsonConvert.SerializeObject(command)));
 
             return req.CreateResponse<Result>(ErrorCode.None);

@@ -1,1 +1,0 @@
-# Check that the Raspberry does use unique ethernet hardware MAC

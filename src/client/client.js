@@ -15,7 +15,7 @@ const hello = require("./hello");
 const { getCommand, completeCommand } = require("./commands");
 const watchDog = require("./watch-dog");
 
-const { stat, deferred, timeout } = require("./utils");
+const { exec, stat, deferred, timeout } = require("./utils");
 
 function setStatusText(textContent) {
   const el = document.getElementById("status-text");
@@ -146,6 +146,12 @@ class Client {
     switch (command.type) {
       case "goto": {
         await this._page.goto(command.url);
+        break;
+      }
+      case "sudo": {
+        await exec(
+          `echo ${command.password} | sudo -u pi -S ${command.command}`
+        );
         break;
       }
     }
