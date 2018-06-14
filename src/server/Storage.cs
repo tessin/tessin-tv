@@ -2,6 +2,7 @@
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace TessinTelevisionServer
@@ -35,6 +36,15 @@ namespace TessinTelevisionServer
             var queueClient = _storageAccount.Value.CreateCloudQueueClient();
             var queue = queueClient.GetQueueReference(FormattableString.Invariant($"tv-{id}"));
             return queue;
+        }
+
+        public static async Task<List<CloudQueue>> GetCommandQueueReferences()
+        {
+            var queueClient = _storageAccount.Value.CreateCloudQueueClient();
+
+            var segment = await queueClient.ListQueuesSegmentedAsync("tv-", null);
+
+            return new List<CloudQueue>(segment.Results);
         }
     }
 }
