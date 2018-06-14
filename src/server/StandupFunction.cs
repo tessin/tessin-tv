@@ -26,7 +26,7 @@ namespace TessinTelevisionServer
 
     public static class StanddownFunction
     {
-        [FunctionName("StandupFunction")]
+        [FunctionName("StanddownFunction")]
         public static async Task Run([TimerTrigger("0 14 9 * * *")]TimerInfo myTimer, TraceWriter log)
         {
             var table = await Storage.Table;
@@ -48,6 +48,10 @@ namespace TessinTelevisionServer
                     if (Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
                     {
                         await queue.AddCommandAsync(new GotoCommand { Url = gotoUrl });
+                    }
+                    else
+                    {
+                        await queue.AddCommandAsync(new GotoCommand { Url = new Uri("splash:") });
                     }
                 }
             }
