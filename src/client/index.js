@@ -6,7 +6,11 @@ const Client = require("./client");
 
 const { deferred } = require("./utils");
 
+process.env.npm_package_version = require("./package.json").version;
+
 async function main() {
+  console.debug(process.env.npm_package_version);
+
   const client = new Client();
 
   const hostID = await client.hostID();

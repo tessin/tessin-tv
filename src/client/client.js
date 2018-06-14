@@ -103,7 +103,8 @@ class Client {
             {
               name: this._hello && this._hello.name
             },
-            this._hostID
+            this._hostID,
+            { version: process.env.npm_package_version }
           )
         )
       );
