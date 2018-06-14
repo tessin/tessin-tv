@@ -2,7 +2,7 @@
 
 const { format } = require("url");
 
-const request = require("./http");
+const request = require("./request");
 
 /**
  * @param {{ hostname: string, serialNumber: string }} hostID

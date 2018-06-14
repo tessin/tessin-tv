@@ -1,6 +1,6 @@
 // @ts-check
 
-const request = require("./http");
+const request = require("./request");
 
 function authorize(url) {
   const { parse, format } = require("url");

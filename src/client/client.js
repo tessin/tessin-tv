@@ -1,4 +1,4 @@
-// ts-check
+// @ts-check
 
 const puppeteer = require("puppeteer");
 const { Browser } = require("puppeteer/lib/Browser");
@@ -63,6 +63,8 @@ class Client {
     }
 
     const page = await this._browser.newPage();
+
+
 
     page.on("close", () => {
       // clean up

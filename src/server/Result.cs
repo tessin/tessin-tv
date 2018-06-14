@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace TessinTelevisionServer
 {
@@ -9,6 +10,21 @@ namespace TessinTelevisionServer
         /// Success
         /// </summary>
         None = 0,
+
+        [EnumMember(Value = "TV_MISSING_HOST_ID")]
+        MissingHostID,
+
+        [EnumMember(Value = "TV_MISSING_HOSTNAME")]
+        MissingHostname,
+
+        [EnumMember(Value = "TV_MISSING_SERIAL_NUMBER")]
+        MissingSerialNumber,
+
+        /// <summary>
+        /// Not an error, command queue is empty. 
+        /// </summary>
+        [EnumMember(Value = "TV_COMMAND_QUEUE_IS_EMPTY")]
+        TvCommandQueueIsEmpty,
     }
 
     public class Result

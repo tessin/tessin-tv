@@ -1,6 +1,8 @@
 ﻿using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
+using System.Threading.Tasks;
 
 namespace TessinTelevisionServer
 {
@@ -26,6 +28,13 @@ namespace TessinTelevisionServer
                 await table.CreateIfNotExistsAsync();
                 return table;
             });
+        }
+
+        public static CloudQueue GetCommandQueueReference(Guid id)
+        {
+            var queueClient = _storageAccount.Value.CreateCloudQueueClient();
+            var queue = queueClient.GetQueueReference(FormattableString.Invariant($"tv-{id}"));
+            return queue;
         }
     }
 }

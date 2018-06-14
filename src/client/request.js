@@ -19,9 +19,12 @@ function Content(headers, content) {
 }
 
 /**
+ * @param {{method: string, url: string, headers?: {[key: string]: string}, content?: any}} options
  * @returns {Promise<{statusCode: number, statusMessage: string, headers: {[key: string]: string}, content: any}>}
  */
-function requestAsync({ method, url, headers, content, ...rest }) {
+function requestAsync(options) {
+  const { method, url, headers, content, ...rest } = options;
+
   const { protocol, hostname, port, path } = parse(url);
 
   let request;
@@ -40,7 +43,7 @@ function requestAsync({ method, url, headers, content, ...rest }) {
     }
   }
 
-  const content2 = new Content(headers || {}, content)
+  const content2 = new Content(headers || {}, content);
 
   const headers2 = Object.assign(
     {
@@ -55,7 +58,7 @@ function requestAsync({ method, url, headers, content, ...rest }) {
   );
 
   return new Promise((resolve, reject) => {
-    const options = {
+    const options2 = {
       hostname,
       port,
       method,
@@ -64,7 +67,7 @@ function requestAsync({ method, url, headers, content, ...rest }) {
       ...rest
     };
     // console.error("request", options);
-    const req = request(options, res => {
+    const req = request(options2, res => {
       res.setEncoding("utf8");
 
       let content3 = "";

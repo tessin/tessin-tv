@@ -8,13 +8,14 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
+using TessinTelevisionServer.Commands;
 
 namespace TessinTelevisionServer
 {
     public class HelloRequest
     {
         [JsonProperty("hostID")]
-        public HostID HostID { get; set; } = new HostID();
+        public HostID HostID { get; set; }
     }
 
     public class HostID
@@ -24,6 +25,18 @@ namespace TessinTelevisionServer
 
         [JsonProperty("serialNumber")]
         public string SerialNumber { get; set; }
+    }
+
+    public class HelloResponse
+    {
+        [JsonProperty("id")]
+        public Guid Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("getCommandUrl")]
+        public Uri GetCommandUrl { get; set; }
     }
 
     public static class HelloFunction
@@ -38,6 +51,21 @@ namespace TessinTelevisionServer
             log.Info($"<<<<: {await req.Content.ReadAsStringAsync()}");
 
             var command = await req.Content.ReadAsAsync<HelloRequest>();
+
+            if (command?.HostID == null)
+            {
+                return req.CreateResponse<Result>(ErrorCode.MissingHostID);
+            }
+
+            if (string.IsNullOrEmpty(command.HostID.Hostname))
+            {
+                return req.CreateResponse<Result>(ErrorCode.MissingHostname);
+            }
+
+            if (string.IsNullOrEmpty(command.HostID.SerialNumber))
+            {
+                return req.CreateResponse<Result>(ErrorCode.MissingSerialNumber);
+            }
 
             log.Info($"HostID: {command.HostID.Hostname}, {command.HostID.SerialNumber}");
 
@@ -59,9 +87,33 @@ namespace TessinTelevisionServer
 
             var pi = (RaspberryPiEntity)result.Result;
 
-            log.Info($"{pi.Id}");
+            log.Info($"TV-ID: {pi.Id}");
 
-            return req.CreateResponse<Result>(ErrorCode.None);
+            var commandQueue = Storage.GetCommandQueueReference(pi.Id);
+
+            await commandQueue.CreateIfNotExistsAsync();
+
+            // boot commands:
+
+            if (!string.IsNullOrEmpty(pi.GotoUrl))
+            {
+                Uri gotoUrl;
+                if (Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
+                {
+                    await commandQueue.AddCommandAsync(new GotoCommand { Url = gotoUrl });
+                }
+                else
+                {
+                    log.Error($"'{pi.GotoUrl}' is not a valid absolute URL");
+                }
+            }
+
+            return req.CreateResponse<Result<HelloResponse>>(new HelloResponse
+            {
+                Id = pi.Id,
+                Name = pi.Name,
+                GetCommandUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/commands/-/get"),
+            });
         }
     }
 }
