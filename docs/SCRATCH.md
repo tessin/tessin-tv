@@ -50,3 +50,9 @@ tessin-tv ALL=(ALL) NOPASSWD: /sbin/shutdown -r +1
 tessin-tv ALL=(ALL) NOPASSWD: /usr/bin/vcgencmd display_power 0
 tessin-tv ALL=(ALL) NOPASSWD: /usr/bin/vcgencmd display_power 1
 ```
+
+## Time zone
+
+```
+TZ=Europe/Stockholm; export TZ
+```

@@ -9,7 +9,7 @@ namespace TessinTelevisionServer
     {
         [FunctionName("DisplayOffFunction")]
         public static async Task Run(
-            [TimerTrigger("0 0 7 * * *")]
+            [TimerTrigger("0 0 19 * * *")]
             TimerInfo myTimer,
             TraceWriter log
             )
@@ -31,7 +31,7 @@ namespace TessinTelevisionServer
     {
         [FunctionName("DisplayOnFunction")]
         public static async Task Run(
-            [TimerTrigger("0 0 19 * * *")]
+            [TimerTrigger("0 0 7 * * *")]
             TimerInfo myTimer,
             TraceWriter log
             )

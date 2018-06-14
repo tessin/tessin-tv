@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Tessin Nordic AB</title>
+  <style type="text/css">
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.red {
+      background-color: red;
+      color: white
+    }
+
+    body.green {
+      background-color: #0cad8c;
+      color: white
+    }
+
+    #container {
+      font-size: 12.5vh;
+      text-align: center;
+      line-height: 100vh;
+    }
+
+    #div-1 {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      margin: 3em;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+
+  </div>
+  <div id="div-1">
+    <span id="status-text">##STATUS_TEXT##</span>
+  </div>
+
+  <script>
+    const TARGET_HOUR = 9 * 60 * 60;
+
+    function getDelta() {
+      const now = new Date()
+      const s = ((now - now.getTimezoneOffset() * 60 * 1000) / 1000) % 86400
+      if (s < TARGET_HOUR) {
+        return Math.round(-(TARGET_HOUR - s))
+      } else {
+        return Math.round(s - TARGET_HOUR)
+      }
+    }
+
+    function getTimeString(s) {
+      let n = Math.abs(s)
+
+      const ss = n % 60
+      n = Math.floor(n / 60)
+      const mm = n % 60
+      n = Math.floor(n / 60)
+      const hh = n % 24
+
+      return `${s < 0 ? '-' : '+'}${hh.toString(10).padStart(2, '0')}:${mm.toString(10).padStart(2, '0')}:${ss.toString(10).padStart(2, '0')}`
+    }
+
+    let tick, last_tick
+    tick = function () {
+      var d = getDelta()
+      if (last_tick !== d) {
+        let className = 'red'
+        if (!(d < 0)) {
+          className = 'green'
+        }
+        document.getElementById("container").textContent = getTimeString(d)
+        document.body.className = className
+        last_tick = d
+      }
+      window.requestAnimationFrame(tick)
+    }
+    window.requestAnimationFrame(tick)
+  </script>
+
+</body>
+
+</html>
