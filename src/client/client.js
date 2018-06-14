@@ -126,7 +126,7 @@ class Client {
       if (msg == null) {
         console.debug("command idle");
         try {
-          await timeout(5 * 60 * 1000, cancellation_token);
+          await timeout(60 * 1000, cancellation_token);
         } catch (err) {
           return; // canceled
         }
@@ -149,10 +149,8 @@ class Client {
         await this._page.goto(command.url);
         break;
       }
-      case "sudo": {
-        await exec(
-          `echo ${command.password} | sudo -u pi -S ${command.command}`
-        );
+      case "exec": {
+        await exec(command.command);
         break;
       }
     }
