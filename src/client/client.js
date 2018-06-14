@@ -4,17 +4,25 @@ const puppeteer = require("puppeteer");
 const { Browser } = require("puppeteer/lib/Browser");
 const Page = require("puppeteer/lib/Page");
 
-let splashHtmlFile = require.resolve("./static/splash.html");
+let bootHtmlFile = require.resolve(process.argv[2] || "./static/splash.html");
 
 if (require("os").platform() === "linux") {
-  splashHtmlFile = "file://" + splashHtmlFile;
+  bootHtmlFile = "file://" + bootHtmlFile;
 }
 
 const hostID = require("./host-id");
 const hello = require("./hello");
 const { getCommand, completeCommand } = require("./commands");
+const watchDog = require("./watch-dog");
 
-const { stat, timeout } = require("./utils");
+const { stat, deferred, timeout } = require("./utils");
+
+function setStatusText(textContent) {
+  const el = document.getElementById("status-text");
+  if (el) {
+    el.textContent = textContent;
+  }
+}
 
 class Client {
   constructor() {
@@ -43,6 +51,7 @@ class Client {
       executablePath = "/usr/bin/chromium-browser";
     }
 
+    // @ts-ignore: false positive
     this._browser = await puppeteer.launch({
       executablePath,
       headless: false,
@@ -54,33 +63,40 @@ class Client {
         process.env.NODE_ENV !== "development" ? "--kiosk" : null
       ].filter(x => x)
     });
+
+    // debug:
+    for (const eventName of [
+      // "disconnected",
+      "targetchanged",
+      "targetcreated",
+      "targetdestroyed"
+    ]) {
+      this._browser.on(eventName, () => {
+        console.debug("browser", eventName);
+      });
+    }
   }
 
-  async newPage() {
+  /**
+   * @param {deferred} cancellation_token
+   */
+  async newPage(cancellation_token) {
     if (this._page) {
       await this._page.close();
       this._page = null;
     }
 
+    /** @type {Page} */
     const page = await this._browser.newPage();
-
-
-
-    page.on("close", () => {
-      // clean up
-    });
 
     // native Raspberry Pi resolution
     await page.setViewport({ width: 1920, height: 1080 });
 
-    await page.goto(splashHtmlFile);
-
-    await page.waitFor("#div-1");
+    await page.goto(bootHtmlFile);
 
     try {
       await page.evaluate(
-        textContent =>
-          (document.getElementById("div-1").textContent = textContent),
+        setStatusText,
         JSON.stringify(
           Object.assign(
             {},
@@ -92,18 +108,27 @@ class Client {
         )
       );
     } catch (err) {
-      await page.evaluate(set_status_text, `error: ${err.message}`);
+      console.error("cannot set status text", err.message);
     }
+
+    watchDog(this, page, cancellation_token); // fire and forget!
 
     this._page = page;
   }
 
-  async messageLoop() {
+  /**
+   * @param {deferred=} cancellation_token
+   */
+  async messageLoop(cancellation_token) {
     for (;;) {
       const msg = await getCommand(this._hello.getCommandUrl);
       if (msg == null) {
         console.debug("command idle");
-        await timeout(5 * 60 * 1000);
+        try {
+          await timeout(5 * 60 * 1000, cancellation_token);
+        } catch (err) {
+          return; // canceled
+        }
         continue;
       }
       console.debug("command", msg.command);

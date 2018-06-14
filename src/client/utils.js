@@ -26,8 +26,60 @@ function stat(fn) {
   }
 }
 
-function timeout(milliseconds) {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
+function deferred() {
+  this._task = new Promise((resolve, reject) => {
+    this.resolve = resolve;
+    this.reject = reject;
+  });
+
+  const subscribers = new Set();
+
+  this._task.then(
+    function() {
+      for (const [onfulfilled, _] of subscribers) {
+        onfulfilled && onfulfilled(...arguments);
+      }
+    },
+    function() {
+      for (const [_, onrejected] of subscribers) {
+        onrejected && onrejected(...arguments);
+      }
+    }
+  );
+
+  this._subscribers = subscribers;
 }
 
-module.exports = { exec, stat, timeout };
+deferred.prototype.task = function() {
+  return this._task;
+};
+
+deferred.prototype.subscribe = function(onfulfilled, onrejected) {
+  const subscription = [onfulfilled, onrejected];
+  this._subscribers.add(subscription);
+  return () => this._subscribers.delete(subscription);
+};
+
+/**
+ * @param {number} milliseconds
+ * @param {deferred=} cancellationToken
+ */
+function timeout(milliseconds, cancellationToken) {
+  return new Promise((resolve, reject) => {
+    let cancellationRegistration;
+    const handle = setTimeout(() => {
+      cancellationRegistration && cancellationRegistration();
+      resolve();
+    }, milliseconds); // resolve if timed out
+    if (cancellationToken) {
+      // this is a memory leak
+      cancellationRegistration = cancellationToken.subscribe(() => {
+        console.debug("timeout canceled");
+        clearTimeout(handle);
+        reject(new Error("operation was canceled")); // reject if canceled
+      });
+    }
+  });
+}
+
+module.exports = { exec, stat, timeout, deferred };

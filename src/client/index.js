@@ -4,6 +4,8 @@
 
 const Client = require("./client");
 
+const { deferred } = require("./utils");
+
 async function main() {
   const client = new Client();
 
@@ -16,13 +18,26 @@ async function main() {
   console.debug("hello", hello);
 
   if (hello) {
+    const cancellation_token = new deferred();
+
     await client.launch();
-    await client.newPage();
-    await client._page.waitFor(5000); // keep splash screen open for 5 seconds...
-    await client.messageLoop();
+
+    client._browser.on("disconnected", () => {
+      // Chromium is closed or crashed or the browser.disconnect method was called
+      cancellation_token.resolve();
+    });
+
+    await client.newPage(cancellation_token);
+
+    // Keep splash screen open for 5 seconds...
+    await client._page.waitFor(5000);
+
+    await client.messageLoop(cancellation_token);
   } else {
     process.exitCode = 1;
   }
 }
+
+console.log(process.argv);
 
 main();
