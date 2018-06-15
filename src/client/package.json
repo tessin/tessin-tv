@@ -1,6 +1,6 @@
 {
   "name": "tessin-tv",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "Run web apps on top of Raspberry Pi 3 Model B/B+",
   "main": "index.js",
   "author": "Tessin Nordic AB",
