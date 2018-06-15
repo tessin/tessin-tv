@@ -100,7 +100,11 @@ class Client {
   }
 
   async _goto(page, url) {
-    await page.goto(splashHtmlFile, { waitUntil: "domcontentloaded" });
+    if (page.url() === url) {
+      return; // do nothing
+    }
+
+    await page.goto(url);
 
     try {
       await page.evaluate(
@@ -136,10 +140,9 @@ class Client {
         }
         continue;
       }
-      // console.debug("command", msg.command);
+      console.debug("<<<<", "command", msg.command);
       try {
         await this._processCommand(msg.command);
-
         // complete command
         await completeCommand(msg.completeUrl);
         // console.debug("command done");
@@ -156,7 +159,7 @@ class Client {
         if (url === "splash:") {
           url = splashHtmlFile;
         }
-        await this._goto(this._page, command.url);
+        await this._goto(this._page, url);
         break;
       }
       case "exec": {
