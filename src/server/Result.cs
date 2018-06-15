@@ -20,6 +20,9 @@ namespace TessinTelevisionServer
         [EnumMember(Value = "TV_MISSING_SERIAL_NUMBER")]
         MissingSerialNumber,
 
+        [EnumMember(Value = "TV_MISSING_POP_RECEIPT")]
+        MissingPopReceipt,
+
         /// <summary>
         /// Not an error, command queue is empty. 
         /// </summary>

@@ -20,7 +20,7 @@ namespace TessinTelevisionServer
 
     public static class CommandGetFunction
     {
-        [FunctionName("CommandFunction")]
+        [FunctionName("CommandGetFunction")]
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "tv/{id}/commands/-/get")]
             HttpRequestMessage req,
@@ -43,6 +43,7 @@ namespace TessinTelevisionServer
             if (!(msg.DequeueCount <= 5))
             {
                 // dead letter
+                log.Warning($"message '{msg.Id}' dead letter");
                 await queue.DeleteMessageAsync(msg);
                 goto _GetMessage;
             }

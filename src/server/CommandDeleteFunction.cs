@@ -2,6 +2,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -23,6 +24,11 @@ namespace TessinTelevisionServer
             var query = req.RequestUri.ParseQueryString();
 
             var popReceipt = query["popReceipt"];
+
+            if (string.IsNullOrEmpty(popReceipt))
+            {
+                return req.CreateResponse<Result>(HttpStatusCode.BadRequest, ErrorCode.MissingPopReceipt);
+            }
 
             var queue = Storage.GetCommandQueueReference(id2);
 
