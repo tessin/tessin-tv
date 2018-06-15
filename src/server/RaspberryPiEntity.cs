@@ -1,21 +1,19 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TessinTelevisionServer
 {
     public class RaspberryPiEntity : TableEntity
     {
+        public static readonly string Prefix = "pi";
+
         public RaspberryPiEntity()
         {
         }
 
         public RaspberryPiEntity(string serialNumber)
         {
-            this.PartitionKey = "pi";
+            this.PartitionKey = Prefix;
             this.RowKey = serialNumber;
 
             this.SerialNumber = serialNumber;

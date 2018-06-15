@@ -4,10 +4,10 @@ const puppeteer = require("puppeteer");
 const { Browser } = require("puppeteer/lib/Browser");
 const Page = require("puppeteer/lib/Page");
 
-let bootHtmlFile = require.resolve(process.argv[2] || "./static/splash.html");
+let splashHtmlFile = require.resolve(process.argv[2] || "./static/splash.html");
 
 if (require("os").platform() === "linux") {
-  bootHtmlFile = "file://" + bootHtmlFile;
+  splashHtmlFile = "file://" + splashHtmlFile;
 }
 
 const hostID = require("./host-id");
@@ -92,7 +92,15 @@ class Client {
     // native Raspberry Pi resolution
     await page.setViewport({ width: 1920, height: 1080 });
 
-    await page.goto(bootHtmlFile);
+    this._goto(page, splashHtmlFile);
+
+    watchDog(this, page, cancellation_token); // fire and forget!
+
+    this._page = page;
+  }
+
+  async _goto(page, url) {
+    await page.goto(splashHtmlFile, { waitUntil: "domcontentloaded" });
 
     try {
       await page.evaluate(
@@ -111,10 +119,6 @@ class Client {
     } catch (err) {
       console.error("cannot set status text", err.message);
     }
-
-    watchDog(this, page, cancellation_token); // fire and forget!
-
-    this._page = page;
   }
 
   /**
@@ -124,7 +128,7 @@ class Client {
     for (;;) {
       const msg = await getCommand(this._hello.getCommandUrl);
       if (msg == null) {
-        console.debug("command idle");
+        // console.debug("command idle");
         try {
           await timeout(60 * 1000, cancellation_token);
         } catch (err) {
@@ -132,11 +136,13 @@ class Client {
         }
         continue;
       }
-      console.debug("command", msg.command);
+      // console.debug("command", msg.command);
       try {
         await this._processCommand(msg.command);
-        completeCommand(msg.completeUrl);
-        console.debug("command done");
+
+        // complete command
+        await completeCommand(msg.completeUrl);
+        // console.debug("command done");
       } catch (err) {
         console.error("command error", err.message);
       }
@@ -146,7 +152,11 @@ class Client {
   async _processCommand(command) {
     switch (command.type) {
       case "goto": {
-        await this._page.goto(command.url);
+        let url = command.url;
+        if (url === "splash:") {
+          url = splashHtmlFile;
+        }
+        await this._goto(this._page, command.url);
         break;
       }
       case "exec": {

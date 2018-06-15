@@ -1,8 +1,6 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.WindowsAzure.Storage.Table;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using TessinTelevisionServer.Commands;
 
@@ -11,7 +9,11 @@ namespace TessinTelevisionServer
     public static class StandupFunction
     {
         [FunctionName("StandupFunction")]
-        public static async Task Run([TimerTrigger("0 57 8 * * *")]TimerInfo myTimer, TraceWriter log)
+        public static async Task Run(
+            [TimerTrigger("0 57 8 * * *")]
+            TimerInfo myTimer,
+            TraceWriter log
+            )
         {
             var standupUrl = new Uri("https://tessinraspi89f4.blob.core.windows.net/static/standup.htm");
 
@@ -27,18 +29,17 @@ namespace TessinTelevisionServer
     public static class StanddownFunction
     {
         [FunctionName("StanddownFunction")]
-        public static async Task Run([TimerTrigger("0 14 9 * * *")]TimerInfo myTimer, TraceWriter log)
+        public static async Task Run(
+            [TimerTrigger("0 14 9 * * *")]
+            TimerInfo myTimer,
+            TraceWriter log
+            )
         {
-            var table = await Storage.Table;
+            var repo = new RaspberryPiRepository();
 
-            var segment = await table.ExecuteQuerySegmentedAsync(new TableQuery<RaspberryPiEntity>
-            {
-                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "pi")
-            }, null);
+            var list = await repo.GetAll();
 
-            var list = new List<ListResponse>();
-
-            foreach (var pi in segment.Results)
+            foreach (var pi in list)
             {
                 var queue = Storage.GetCommandQueueReference(pi.Id);
 

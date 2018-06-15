@@ -34,13 +34,13 @@ namespace TessinTelevisionServer
 
             _GetMessage:
 
-            var msg = await queue.GetMessageAsync(TimeSpan.FromMinutes(2), new Microsoft.WindowsAzure.Storage.Queue.QueueRequestOptions(), null);
+            var msg = await queue.GetMessageAsync(TimeSpan.FromMinutes(2), null, null);
             if (msg == null)
             {
                 return req.CreateResponse<Result>(ErrorCode.TvCommandQueueIsEmpty);
             }
 
-            if (!(msg.DequeueCount <= 1))
+            if (!(msg.DequeueCount <= 5))
             {
                 // dead letter
                 await queue.DeleteMessageAsync(msg);

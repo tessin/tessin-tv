@@ -1,6 +1,7 @@
 {
   "name": "tessin-tv",
-  "version": "1.0.14",
+  "version": "1.0.15",
+  "description": "Run web apps on top of Raspberry Pi 3 Model B/B+",
   "main": "index.js",
   "author": "Tessin Nordic AB",
   "license": "MIT",
@@ -8,6 +9,10 @@
     "node": ">=8"
   },
   "bin": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "github:tessin/tessin-tv"
+  },
   "dependencies": {
     "puppeteer": "1.5.0"
   },

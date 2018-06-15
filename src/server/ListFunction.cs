@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace TessinTelevisionServer
 {
@@ -39,18 +36,15 @@ namespace TessinTelevisionServer
             TraceWriter log
             )
         {
-            var table = await Storage.Table;
+            var repo = new RaspberryPiRepository();
 
-            var segment = await table.ExecuteQuerySegmentedAsync(new TableQuery<RaspberryPiEntity>
+            var list = await repo.GetAll();
+
+            var list2 = new List<ListResponse>();
+
+            foreach (var result in list)
             {
-                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "pi")
-            }, null);
-
-            var list = new List<ListResponse>();
-
-            foreach (var result in segment.Results)
-            {
-                list.Add(new ListResponse
+                list2.Add(new ListResponse
                 {
                     Id = result.Id,
                     Name = result.Name,
@@ -60,7 +54,7 @@ namespace TessinTelevisionServer
                 });
             }
 
-            return req.CreateResponse<Result<List<ListResponse>>>(list);
+            return req.CreateResponse<Result<List<ListResponse>>>(list2);
         }
     }
 }
