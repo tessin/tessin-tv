@@ -42,6 +42,10 @@ While Node.js is pre-installed, the version is old. You need at least version 7.
 
 You can use the command `uname -m` to check if your Raspberry Pi supports `armv6l` or `armv7l`. You can run `armv6l` on top of `armv7l` but not the other way around.
 
+## User configuration
+
+- How to change default user
+
 ## `sudo tv`
 
 ```
