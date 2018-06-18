@@ -53,6 +53,7 @@ You can use the command `uname -m` to check if your Raspberry Pi supports `armv6
 tessin-tv ALL=(ALL) NOPASSWD: /sbin/shutdown -r +1
 tessin-tv ALL=(ALL) NOPASSWD: /usr/bin/vcgencmd display_power 0
 tessin-tv ALL=(ALL) NOPASSWD: /usr/bin/vcgencmd display_power 1
+tessin-tv ALL=(ALL) NOPASSWD: /usr/bin/vcgencmd measure_temp
 ```
 
 ## Time zone

@@ -5,12 +5,7 @@ const Page = require("puppeteer/lib/Page");
 const Client = require("./client");
 const { deferred, timeout } = require("./utils");
 
-function t() {
-  const [seconds, _] = process.hrtime();
-  return seconds;
-}
-
-const WATCH_DOG_TARGET = 5000;
+const WATCH_DOG_TARGET = 15 * 1000;
 const WATCH_DOG_SAMPLE_RATE = WATCH_DOG_TARGET / 2;
 const WATCH_DOG_LIMIT = 2 * WATCH_DOG_TARGET;
 
@@ -33,7 +28,7 @@ async function watchDog(client, page, cancellation_token) {
         clearInterval(interval);
         interval = null;
       }
-      client.newPage(cancellation_token); // this will close page and clear interval
+      client.newPage(cancellation_token).then(() => client.hello()); // this will close page and clear interval, then perform hello and recover goto URL
     }
   }, WATCH_DOG_TARGET);
 

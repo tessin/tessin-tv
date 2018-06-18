@@ -28,13 +28,16 @@ namespace TessinTelevisionServer
     public class HelloResponse
     {
         [JsonProperty("id")]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
 
         [JsonProperty("getCommandUrl")]
         public Uri GetCommandUrl { get; set; }
+
+        [JsonProperty("statusUrl")]
+        public Uri StatusUrl { get; set; }
     }
 
     public static class HelloFunction
@@ -77,7 +80,19 @@ namespace TessinTelevisionServer
                         new RaspberryPiEntity(command.HostID.SerialNumber)
                         {
                             Hostname = command.HostID.Hostname,
-                            Id = Guid.NewGuid()
+                            Id = Guid.NewGuid() // once
+                        }
+                    )
+                );
+            }
+            else
+            {
+                result = await table.ExecuteAsync(
+                    TableOperation.Merge(
+                        new RaspberryPiEntity(command.HostID.SerialNumber)
+                        {
+                            ETag = result.Etag,
+                            Hostname = command.HostID.Hostname,
                         }
                     )
                 );
@@ -111,6 +126,7 @@ namespace TessinTelevisionServer
                 Id = pi.Id,
                 Name = pi.Name,
                 GetCommandUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/commands/-/get"),
+                StatusUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/status"),
             });
         }
     }

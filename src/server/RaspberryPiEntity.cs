@@ -22,7 +22,7 @@ namespace TessinTelevisionServer
         public string Hostname { get; set; }
         public string SerialNumber { get; set; }
 
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string Name { get; set; }
 
         public string GotoUrl { get; set; }

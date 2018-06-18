@@ -31,8 +31,12 @@ namespace TessinTelevisionServer
             });
         }
 
-        public static CloudQueue GetCommandQueueReference(Guid id)
+        public static CloudQueue GetCommandQueueReference(Guid? id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
             var queueClient = _storageAccount.Value.CreateCloudQueueClient();
             var queue = queueClient.GetQueueReference(FormattableString.Invariant($"tv-{id}"));
             return queue;

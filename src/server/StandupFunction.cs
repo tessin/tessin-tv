@@ -10,7 +10,7 @@ namespace TessinTelevisionServer
     {
         [FunctionName("StandupFunction")]
         public static async Task Run(
-            [TimerTrigger("0 57 8 * * *")]
+            [TimerTrigger("0 57 8 * * 1-5")]
             TimerInfo myTimer,
             TraceWriter log
             )
@@ -30,7 +30,7 @@ namespace TessinTelevisionServer
     {
         [FunctionName("StanddownFunction")]
         public static async Task Run(
-            [TimerTrigger("0 14 9 * * *")]
+            [TimerTrigger("0 14 9 * * 1-5")]
             TimerInfo myTimer,
             TraceWriter log
             )

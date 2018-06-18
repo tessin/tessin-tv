@@ -12,10 +12,13 @@ namespace TessinTelevisionServer
     public class ListResponse
     {
         [JsonProperty("id")]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
+
+        [JsonProperty("gotoUrl")]
+        public Uri GotoUrl { get; set; }
 
         [JsonProperty("hostname")]
         public string Hostname { get; set; }
@@ -48,9 +51,10 @@ namespace TessinTelevisionServer
                 {
                     Id = result.Id,
                     Name = result.Name,
+                    GotoUrl = result.GotoUrl != null ? new Uri(result.GotoUrl) : null,
                     Hostname = result.Hostname,
                     SerialNumber = result.SerialNumber,
-                    PostCommandUrl = new Uri(req.RequestUri, $"/api/tv/{result.Id}/commands")
+                    PostCommandUrl = new Uri(req.RequestUri, $"/api/tv/{result.Id}/commands"),
                 });
             }
 
