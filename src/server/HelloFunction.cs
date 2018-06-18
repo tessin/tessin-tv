@@ -12,6 +12,9 @@ namespace TessinTelevisionServer
 {
     public class HelloRequest
     {
+        [JsonProperty("version")]
+        public string Version { get; set; }
+
         [JsonProperty("hostID")]
         public HostID HostID { get; set; }
     }
@@ -79,8 +82,10 @@ namespace TessinTelevisionServer
                     TableOperation.Insert(
                         new RaspberryPiEntity(command.HostID.SerialNumber)
                         {
+                            Id = Guid.NewGuid(), // once
+
                             Hostname = command.HostID.Hostname,
-                            Id = Guid.NewGuid() // once
+                            Version = command.Version,
                         }
                     )
                 );
@@ -92,13 +97,16 @@ namespace TessinTelevisionServer
                         new RaspberryPiEntity(command.HostID.SerialNumber)
                         {
                             ETag = result.Etag,
+
                             Hostname = command.HostID.Hostname,
+                            Version = command.Version,
                         }
                     )
                 );
 
                 // patch retrieve op
                 ((RaspberryPiEntity)result.Result).Hostname = command.HostID.Hostname;
+                ((RaspberryPiEntity)result.Result).Version = command.Version;
             }
 
             var pi = (RaspberryPiEntity)result.Result;

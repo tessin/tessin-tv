@@ -26,6 +26,7 @@ namespace TessinTelevisionServer
 
         public Guid? Id { get; set; }
         public string Name { get; set; }
+        public string Version { get; set; }
 
         public string GotoUrl { get; set; }
     }
