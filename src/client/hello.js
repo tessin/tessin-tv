@@ -32,7 +32,7 @@ async function hello(hostID) {
   const res = await request({
     method: "POST",
     url,
-    content: { hostID }
+    content: { version: process.env.npm_package_version, hostID }
   });
 
   if (res.content.success) {
