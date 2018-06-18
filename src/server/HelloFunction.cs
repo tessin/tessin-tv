@@ -87,7 +87,7 @@ namespace TessinTelevisionServer
             }
             else
             {
-                result = await table.ExecuteAsync(
+                var result2 = await table.ExecuteAsync(
                     TableOperation.Merge(
                         new RaspberryPiEntity(command.HostID.SerialNumber)
                         {
@@ -96,6 +96,9 @@ namespace TessinTelevisionServer
                         }
                     )
                 );
+
+                // patch retrieve op
+                ((RaspberryPiEntity)result.Result).Hostname = command.HostID.Hostname;
             }
 
             var pi = (RaspberryPiEntity)result.Result;

@@ -166,6 +166,12 @@ class Client {
         await exec(command.command);
         break;
       }
+      case "puppeteer": {
+        for (const item of command.commands) {
+          await this._page[item[0]].apply(this._page, item.slice(1));
+        }
+        break;
+      }
     }
   }
 }
