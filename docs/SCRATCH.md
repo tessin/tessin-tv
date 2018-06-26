@@ -7,11 +7,14 @@ This document outlines how to prepare a Raspbian NOOBS gold master image.
 - Raspberry Pi 3 Model B
 - Raspberry Pi 3 Model B+
 - Micro USB B Power Supply 2.5A, 5.1V <sup>[1]</sup>
-- OmniPi, Raspberry Pi (Black) unofficial case <sup>[2]</sup>
+- DesignSpark, Raspberry Pi (available in white or black) board enclosure <sup>[2]</sup>
+- SD card <sup>[3]</sup>
 
 <sup>[1]</sup> note the amperage requirement! while you can boot a Raspberry Pi from almost any USB power source it won't be stable and you'll see a lightning indicator ⚡ in the top-right corner. This can also happen if you are running an old version of Raspbian NOOBS (i.e. SD cards with pre-installed Raspbian NOOBS can be out of date).
 
-<sup>[2]</sup> this case is good. Has better airflow and enough space to install a small fan.
+<sup>[2]</sup> while not the offical Raspberry Pi case, this case is good. Has better airflow and enough space to install a small fan.
+
+<sup>[3]</sup> there are many to choose from, if you want to get up and running quickly and save 30 minutes, an SD card pre-installed with Raspbian NOOBS is a good choice. However, it might be old, you can try the [updating and upgrading Raspbian](https://www.raspberrypi.org/documentation/raspbian/updating.md) guide but if your image is too old and you cant boot use PiBakery to create a new up-to-date image, it will create an SD card with the latest kernel, firmware and software.
 
 ## Recommended software
 
@@ -44,7 +47,7 @@ You can use the command `uname -m` to check if your Raspberry Pi supports `armv6
 
 ## User configuration
 
-- How to change default user
+By default, the Pi user `pi` is the only user that can log in and execute commands as root. You should change the default password for `pi` to something otherthan `raspberry` and create a new unprivleged user `tessin-tv` that has limited access to the board (i.e. not root access).
 
 ## `sudo tv`
 
