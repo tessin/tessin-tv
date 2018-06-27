@@ -11,6 +11,9 @@ namespace TessinTelevisionServer
         /// </summary>
         None = 0,
 
+        [EnumMember(Value = "TV_BAD_REQUEST")]
+        BadRequest,
+
         [EnumMember(Value = "TV_MISSING_HOST_ID")]
         MissingHostID,
 
@@ -39,6 +42,9 @@ namespace TessinTelevisionServer
 
         [JsonProperty("errorCode", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public ErrorCode ErrorCode { get; set; }
+
+        [JsonProperty("errorMessage", NullValueHandling = NullValueHandling.Ignore)]
+        public string ErrorMessage { get; set; }
 
         [JsonProperty("success", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool Success => ErrorCode == 0;

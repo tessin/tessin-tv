@@ -54,7 +54,16 @@ namespace TessinTelevisionServer
         {
             log.Info($"<<<<: {await req.Content.ReadAsStringAsync()}");
 
-            var command = await req.Content.ReadAsAsync<HelloRequest>();
+            HelloRequest command;
+
+            try
+            {
+                command = await req.Content.ReadAsAsync<HelloRequest>();
+            }
+            catch (Exception ex)
+            {
+                return req.CreateResponse(new Result { ErrorCode = ErrorCode.BadRequest, ErrorMessage = ex.Message });
+            }
 
             if (command?.HostID == null)
             {
