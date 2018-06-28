@@ -3,10 +3,11 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using TessinTelevisionServer.Commands;
 
 namespace TessinTelevisionServer
 {
@@ -36,11 +37,43 @@ namespace TessinTelevisionServer
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("gotoUrl")]
+        public Uri GotoUrl { get; set; }
+
         [JsonProperty("getCommandUrl")]
         public Uri GetCommandUrl { get; set; }
 
-        [JsonProperty("statusUrl")]
-        public Uri StatusUrl { get; set; }
+        [JsonProperty("eventsUrl")]
+        public Uri EventsUrl { get; set; }
+
+        [JsonIgnore]
+        public bool HasJobs => 0 < Jobs?.Count;
+
+        [JsonProperty("jobs")]
+        public List<HelloJobResponse> Jobs { get; set; }
+
+        public bool ShouldSerializeJobs()
+        {
+            return HasJobs;
+        }
+    }
+
+    public class HelloJobResponse
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("cronExpression")]
+        public string CronExpression { get; set; }
+
+        [JsonProperty("command")]
+        public JObject Command { get; set; }
+
+        /// <summary>
+        /// timezone from http://momentjs.com/timezone/
+        /// </summary>
+        [JsonProperty("timeZone")]
+        public string TimeZone { get; set; }
     }
 
     public static class HelloFunction
@@ -126,27 +159,57 @@ namespace TessinTelevisionServer
 
             await commandQueue.CreateIfNotExistsAsync();
 
-            // boot commands:
-
+            Uri gotoUrl = null;
             if (!string.IsNullOrEmpty(pi.GotoUrl))
             {
-                Uri gotoUrl;
-                if (Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
+                if (!Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
                 {
-                    await commandQueue.AddCommandAsync(new GotoCommand { Url = gotoUrl });
+                    log.Error($"'{pi.Name}' has invalid goto URL");
                 }
-                else
+            }
+
+            var jobsSegment = await table.ExecuteQuerySegmentedAsync(new TableQuery<JobEntity>
+            {
+                FilterString = TableQuery.CombineFilters(
+                    TableQuery.GenerateFilterCondition(nameof(JobEntity.PartitionKey), QueryComparisons.Equal, JobEntity.Prefix),
+                    TableOperators.And,
+                    TableQuery.GenerateFilterConditionForBool(nameof(JobEntity.Enabled), QueryComparisons.Equal, true)
+                )
+            }, null);
+
+            var jobs = new List<HelloJobResponse>();
+
+            foreach (var job in jobsSegment.Results)
+            {
+                JObject jobCommand;
+
+                try
                 {
-                    log.Error($"'{pi.GotoUrl}' is not a valid absolute URL");
+                    jobCommand = JObject.Parse(job.Command);
                 }
+                catch (Exception ex)
+                {
+                    log.Error($"job '{job.Name}' has invalid payload. this job will not be run", ex);
+                    continue;
+                }
+
+                jobs.Add(new HelloJobResponse
+                {
+                    Name = job.Name,
+                    CronExpression = job.CronExpression,
+                    Command = jobCommand,
+                    TimeZone = job.TimeZone
+                });
             }
 
             return req.CreateResponse<Result<HelloResponse>>(new HelloResponse
             {
                 Id = pi.Id,
                 Name = pi.Name,
+                GotoUrl = gotoUrl,
                 GetCommandUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/commands/-/get"),
-                StatusUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/status"),
+                EventsUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/events"),
+                Jobs = jobs
             });
         }
     }

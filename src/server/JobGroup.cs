@@ -9,15 +9,20 @@ namespace TessinTelevisionServer
 {
     public class JobEntity : TableEntity
     {
+        public const string Prefix = "job";
+
         public JobEntity()
         {
         }
 
         public JobEntity(string jobName)
         {
-            PartitionKey = "job";
-            RowKey = "job-" + jobName;
+            PartitionKey = Prefix;
+            RowKey = Prefix + "-" + jobName;
+            Name = jobName;
         }
+
+        public string Name { get; set; }
 
         public string CronExpression { get; set; }
 
