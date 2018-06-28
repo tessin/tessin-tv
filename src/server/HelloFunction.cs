@@ -63,6 +63,9 @@ namespace TessinTelevisionServer
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("etag")]
+        public string ETag { get; set; }
+
         [JsonProperty("cronExpression")]
         public string CronExpression { get; set; }
 
@@ -196,6 +199,7 @@ namespace TessinTelevisionServer
                 jobs.Add(new HelloJobResponse
                 {
                     Name = job.Name,
+                    ETag = job.ETag,
                     CronExpression = job.CronExpression,
                     Command = jobCommand,
                     TimeZone = job.TimeZone
