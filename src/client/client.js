@@ -13,7 +13,6 @@ if (require("os").platform() === "linux") {
 const hostID = require("./host-id");
 const hello = require("./hello");
 const { getCommand, completeCommand } = require("./commands");
-const watchDog = require("./watch-dog");
 
 const { exec, stat, deferred, timeout } = require("./utils");
 
@@ -94,8 +93,6 @@ class Client {
 
     this._goto(page, splashHtmlFile);
 
-    watchDog(this, page, cancellation_token); // fire and forget!
-
     this._page = page;
   }
 
@@ -143,11 +140,14 @@ class Client {
       console.debug("<<<<", "command", msg.command);
       try {
         await this._processCommand(msg.command);
-        // complete command
-        await completeCommand(msg.completeUrl);
-        // console.debug("command done");
       } catch (err) {
         console.error("command error", err.message);
+      } finally {
+        try {
+          await completeCommand(msg.completeUrl);
+        } catch (err) {
+          console.error("cannot complete command", err.message);
+        }
       }
     }
   }

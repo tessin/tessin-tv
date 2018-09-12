@@ -1,5 +1,6 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 using TessinTelevisionServer.Commands;
@@ -49,12 +50,16 @@ namespace TessinTelevisionServer
                     if (Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
                     {
                         await queue.AddCommandAsync(new GotoCommand { Url = gotoUrl });
-                    }
-                    else
-                    {
-                        await queue.AddCommandAsync(new GotoCommand { Url = new Uri("splash:") });
+                        continue;
                     }
                 }
+                else if (!string.IsNullOrEmpty(pi.Command))
+                {
+                    await queue.AddCommandAsync(new PuppeteerCommand { Commands = JArray.Parse(pi.Command) });
+                    continue;
+                }
+
+                await queue.AddCommandAsync(new GotoCommand { Url = new Uri("splash:") });
             }
         }
     }

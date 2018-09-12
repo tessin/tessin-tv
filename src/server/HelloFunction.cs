@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TessinTelevisionServer.Commands;
 
 namespace TessinTelevisionServer
 {
@@ -168,6 +169,17 @@ namespace TessinTelevisionServer
                 if (!Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
                 {
                     log.Error($"'{pi.Name}' has invalid goto URL");
+                }
+            }
+            else if (!string.IsNullOrEmpty(pi.Command))
+            {
+                try
+                {
+                    await commandQueue.AddCommandAsync(new PuppeteerCommand { Commands = JArray.Parse(pi.Command) });
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"'{pi.Name}' has invalid hello command", ex);
                 }
             }
 

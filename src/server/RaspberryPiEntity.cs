@@ -29,5 +29,6 @@ namespace TessinTelevisionServer
         public string Version { get; set; }
 
         public string GotoUrl { get; set; }
+        public string Command { get; set; }
     }
 }
