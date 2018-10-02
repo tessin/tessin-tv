@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TessinTelevisionServer.Commands;
 
 namespace TessinTelevisionServer
 {
@@ -19,15 +20,13 @@ namespace TessinTelevisionServer
             string id,
             TraceWriter log)
         {
-            var id2 = new Guid(id);
-
             var command = await req.Content.ReadAsAsync<JObject>();
 
-            var queue = Storage.GetCommandQueueReference(id2);
+            var queue = Storage.GetCommandQueueReference(new Guid(id));
 
-            // todo: this can fail if the device has not issued it's hello yet
+            // todo: this will fail if the device has not issued it's first hello yet
 
-            await queue.AddMessageAsync(new CloudQueueMessage(JsonConvert.SerializeObject(command)));
+            await queue.AddCommandAsync(command);
 
             return req.CreateResponse<Result>(ErrorCode.None);
         }

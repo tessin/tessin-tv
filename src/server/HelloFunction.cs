@@ -38,9 +38,6 @@ namespace TessinTelevisionServer
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty("gotoUrl")]
-        public Uri GotoUrl { get; set; }
-
         [JsonProperty("getCommandUrl")]
         public Uri GetCommandUrl { get; set; }
 
@@ -163,15 +160,7 @@ namespace TessinTelevisionServer
 
             await commandQueue.CreateIfNotExistsAsync();
 
-            Uri gotoUrl = null;
-            if (!string.IsNullOrEmpty(pi.GotoUrl))
-            {
-                if (!Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
-                {
-                    log.Error($"'{pi.Name}' has invalid goto URL");
-                }
-            }
-            else if (!string.IsNullOrEmpty(pi.Command))
+            if (!string.IsNullOrEmpty(pi.Command))
             {
                 try
                 {
@@ -180,6 +169,21 @@ namespace TessinTelevisionServer
                 catch (Exception ex)
                 {
                     log.Error($"'{pi.Name}' has invalid hello command", ex);
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(pi.GotoUrl))
+                {
+                    Uri gotoUrl;
+                    if (Uri.TryCreate(pi.GotoUrl, UriKind.Absolute, out gotoUrl))
+                    {
+                        await commandQueue.AddCommandAsync(new GotoCommand { Url = gotoUrl });
+                    }
+                    else
+                    {
+                        log.Error($"'{pi.Name}' has invalid goto URL");
+                    }
                 }
             }
 
@@ -222,7 +226,6 @@ namespace TessinTelevisionServer
             {
                 Id = pi.Id,
                 Name = pi.Name,
-                GotoUrl = gotoUrl,
                 GetCommandUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/commands/-/get"),
                 EventsUrl = new Uri(req.RequestUri, $"/api/tv/{pi.Id}/events"),
                 Jobs = jobs
